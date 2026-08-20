@@ -80,15 +80,48 @@ a{color:inherit}
 .screen.on{display:block}
 @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-/* ── ГЕРОЙ: не фото, а сама строка заказа ────────────────── */
-.hero{padding:56px 0 40px;border-bottom:1px solid var(--line)}
-.hero h1{font-size:clamp(34px,5.2vw,60px);line-height:1.02;max-width:15ch}
-.hero h1 em{font-style:normal;color:var(--accent)}
-.hero-sub{margin:20px 0 0;max-width:46ch;color:var(--ink-2);font-size:17px}
-.hero-facts{display:flex;flex-wrap:wrap;gap:8px 28px;margin-top:28px;padding-top:22px;border-top:1px solid var(--line)}
+/* ── ГЕРОЙ: еду продают едой ─────────────────────────────── */
+.hero{position:relative;min-height:min(86vh,720px);display:flex;align-items:flex-end;
+  overflow:hidden;background:#0C1410;isolation:isolate}
+.hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  transform:scale(1.06);animation:heroIn 1.6s var(--ease) both}
+@keyframes heroIn{from{transform:scale(1.14);opacity:.4}to{transform:scale(1.06);opacity:1}}
+.hero::after{content:"";position:absolute;inset:0;z-index:1;
+  background:linear-gradient(180deg,rgba(12,20,16,.55) 0%,rgba(12,20,16,.15) 32%,rgba(12,20,16,.88) 78%,#0C1410 100%)}
+.hero-in{position:relative;z-index:2;width:100%;padding:0 0 52px}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:9px;color:#fff;font-size:12px;
+  letter-spacing:.14em;text-transform:uppercase;opacity:.82;margin-bottom:20px}
+.hero-eyebrow::before{content:"";width:26px;height:1px;background:var(--gold)}
+.hero h1{font-size:clamp(38px,6.4vw,78px);line-height:.98;max-width:14ch;color:#fff;
+  text-shadow:0 2px 30px rgba(0,0,0,.4)}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero-sub{margin:22px 0 0;max-width:44ch;color:rgba(255,255,255,.8);font-size:17px}
+.hero-facts{display:flex;flex-wrap:wrap;gap:10px 30px;margin-top:34px;padding-top:24px;
+  border-top:1px solid rgba(255,255,255,.18)}
 .fact{display:flex;align-items:baseline;gap:9px}
-.fact .num{font-size:22px;font-weight:700;color:var(--brand)}
-.fact span{font-size:13px;color:var(--ink-2)}
+.fact .num{font-size:26px;font-weight:700;color:var(--gold)}
+.fact span{font-size:13px;color:rgba(255,255,255,.72)}
+
+/* ── ХИТЫ: крупные карточки с настоящими снимками ────────── */
+.feature{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px}
+.fcard{position:relative;border-radius:18px;overflow:hidden;aspect-ratio:4/5;
+  display:flex;align-items:flex-end;text-align:left;color:#fff;isolation:isolate;
+  box-shadow:0 1px 2px rgba(22,36,28,.06),0 18px 40px -24px rgba(22,36,28,.45)}
+.fcard img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;
+  transition:transform .6s var(--ease)}
+.fcard::after{content:"";position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(180deg,transparent 34%,rgba(10,16,13,.86) 92%)}
+.fcard:hover img{transform:scale(1.06)}
+.fcard-in{padding:20px}
+.fcard b{display:block;font-family:"Unbounded";font-weight:500;font-size:19px;line-height:1.15;letter-spacing:-.02em}
+.fcard i{display:block;font-style:normal;font-size:13px;opacity:.78;margin-top:5px}
+.fcard .price{display:inline-block;margin-top:14px;background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.24);backdrop-filter:blur(6px);
+  padding:8px 13px;border-radius:9px;font-size:14px;font-weight:500}
+
+/* появление блоков при прокрутке */
+.rise{opacity:0;transform:translateY(18px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.rise.seen{opacity:1;transform:none}
 
 /* ── СТОРИС (лента из dashboard → Истории) ───────────────── */
 .rail{display:flex;gap:12px;overflow-x:auto;padding:24px 0 8px;scrollbar-width:none}
@@ -244,6 +277,16 @@ a{color:inherit}
   .mode,.where{display:none}
   .sec-head{display:block}
   .sec-head span{display:block;margin-top:4px}
+  .hero{min-height:78vh}
+  .hero-in{padding-bottom:36px}
+  .hero h1{font-size:clamp(28px,8.2vw,40px);max-width:none}
+  .hero-sub{font-size:15px;margin-top:16px}
+  .hero-eyebrow{font-size:11px;margin-bottom:14px}
+  .hero::after{background:linear-gradient(180deg,rgba(12,20,16,.5) 0%,rgba(12,20,16,.25) 26%,rgba(12,20,16,.9) 66%,#0C1410 100%)}
+  .hero-facts{gap:8px 22px;margin-top:22px}
+  .fact .num{font-size:21px}
+  .feature{grid-template-columns:1fr;gap:12px}
+  .fcard{aspect-ratio:16/10}
   /* На касании цель — 44px, а не 38px десктопного ховера */
   .row{grid-template-columns:44px minmax(0,1fr) auto 44px;gap:12px}
   .row-mono{width:44px;height:44px;font-size:17px}
@@ -286,32 +329,57 @@ a{color:inherit}
 <!-- ── ГЛАВНАЯ ─────────────────────────────────────────── -->
 <main id="app">
 <section class="screen on" id="s-home" aria-label="Главная">
-  <section class="wrap hero">
-    <h1>Двадцать восемь складок. <em>Одна тарелка.</em></h1>
-    <p class="hero-sub">Лепим руками с утра. Хинкали считаем поштучно — берите сколько съедите, а не «порцию».</p>
-    <div class="hero-facts">
-      <div class="fact"><span class="num">8</span><span>заведений в Москве</span></div>
-      <div class="fact"><span class="num">213</span><span>позиций в меню</span></div>
-      <div class="fact"><span class="num">40</span><span>минут средняя доставка</span></div>
+  <section class="hero">
+    <img class="hero-img" src="img/hero.jpg" alt="Шашлык на шампурах с запечённым перцем и зеленью">
+    <div class="wrap hero-in">
+      <span class="hero-eyebrow">Грузинская кухня · Москва</span>
+      <h1>Двадцать восемь складок. <em>Одна тарелка.</em></h1>
+      <p class="hero-sub">Лепим руками с утра, жарим на углях. Хинкали считаем поштучно — берите сколько съедите, а не «порцию».</p>
+      <div class="hero-facts">
+        <div class="fact"><span class="num">8</span><span>заведений в Москве</span></div>
+        <div class="fact"><span class="num">213</span><span>позиций в меню</span></div>
+        <div class="fact"><span class="num">40</span><span>минут средняя доставка</span></div>
+      </div>
     </div>
   </section>
 
   <div class="wrap">
-    <div class="rail" id="stories"></div>
+    <div class="sec-head rise">
+      <h2>С углей</h2>
+      <span>Готовим на открытом огне</span>
+    </div>
+    <div class="feature rise">
+      <button class="fcard" onclick="openCat(1)">
+        <img src="img/shashlyk.jpg" alt="">
+        <span class="fcard-in"><b>Шашлык-машлык</b><i>Мясное ассорти на компанию · 1000 г</i><span class="price num">3 850 ₽</span></span>
+      </button>
+      <button class="fcard" onclick="openCat(1)">
+        <img src="img/sheika.jpg" alt="">
+        <span class="fcard-in"><b>Свиная шейка</b><i>С лавашом и маринованным луком · 160 г</i><span class="price num">490 ₽</span></span>
+      </button>
+      <button class="fcard" onclick="openCat(1)">
+        <img src="img/baranina.jpg" alt="">
+        <span class="fcard-in"><b>Баранина</b><i>На углях, с зеленью · 160 г</i><span class="price num">590 ₽</span></span>
+      </button>
+    </div>
+  </div>
 
-    <div class="banner">
+  <div class="wrap">
+    <div class="rail rise" id="stories"></div>
+
+    <div class="banner rise">
       <h2>Пять хинкали в подарок к первому заказу</h2>
       <p>Скажем честно: это чтобы вы попробовали и вернулись. Работает один раз на новый номер.</p>
       <span class="pill">Промокод ПЕРВЫЙ</span>
     </div>
 
-    <div class="sec-head">
-      <h2>Что берут чаще всего</h2>
+    <div class="sec-head rise">
+      <h2>Всё меню</h2>
       <span>Меню целиком — ниже</span>
     </div>
-    <div class="tiles" id="tiles"></div>
+    <div class="tiles rise" id="tiles"></div>
 
-    <div class="sec-head">
+    <div class="sec-head rise">
       <h2>Где нас найти</h2>
       <span>Все точки принимают заказы</span>
     </div>
@@ -596,6 +664,17 @@ function drawCart(){
   document.getElementById("sumGoods").textContent=rub(total);
   document.getElementById("sumTotal").textContent=rub(total);
 }
+/* Появление блоков при прокрутке. В режиме «меньше движения»
+   элементы просто сразу видимы, без анимации. */
+if(matchMedia("(prefers-reduced-motion:reduce)").matches){
+  document.querySelectorAll(".rise").forEach(el=>el.classList.add("seen"));
+}else{
+  const io=new IntersectionObserver(es=>es.forEach((e,i)=>{
+    if(e.isIntersecting){ setTimeout(()=>e.target.classList.add("seen"), i*70); io.unobserve(e.target); }
+  }),{rootMargin:"0px 0px -10% 0px"});
+  document.querySelectorAll(".rise").forEach(el=>io.observe(el));
+}
+
 openCat(0); go("home"); paint();
 </script>
 </body>
