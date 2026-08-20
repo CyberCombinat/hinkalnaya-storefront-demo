@@ -47,6 +47,10 @@ h1,h2,h3{font-family:"Unbounded",system-ui,sans-serif;font-weight:500;margin:0;l
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 a{color:inherit}
 :focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:6px}
+/* Тактильный отклик на нажатие — раньше был только hover, на тач-устройствах
+   нажатие ничем не подтверждалось */
+button:active{transform:scale(.96)}
+.fcard:active img,.tile:active img{transform:scale(1.02)}
 
 .num{font-family:"JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
 .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
@@ -70,10 +74,20 @@ a{color:inherit}
 .where b{color:var(--ink);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .where::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--brand-soft);flex:none}
 
-.cart-btn{margin-left:auto;display:flex;align-items:center;gap:12px;background:var(--brand);color:#fff;padding:10px 16px;border-radius:11px;font-weight:500;font-size:14px;transition:.18s var(--ease)}
+.cart-btn{margin-left:auto;display:flex;align-items:center;gap:10px;background:var(--brand);color:#fff;padding:10px 16px;border-radius:11px;font-weight:500;font-size:14px;transition:.18s var(--ease),transform .35s var(--ease)}
 .cart-btn:hover{background:#154033}
 .cart-btn[data-empty=true]{background:var(--paper-2);color:var(--ink-2)}
+.cart-btn svg{width:18px;height:18px;flex:none}
 .cart-btn .num{font-size:14px;font-weight:700}
+.cart-btn.pop{animation:cartPop .38s var(--ease)}
+@keyframes cartPop{30%{transform:scale(1.1)}100%{transform:scale(1)}}
+
+/* ── ТОСТ «Добавлено» ────────────────────────────────────── */
+.toast{position:fixed;top:84px;right:24px;z-index:70;display:flex;align-items:center;gap:10px;
+  background:var(--ink);color:var(--paper);padding:12px 18px;border-radius:11px;font-size:14px;font-weight:500;
+  box-shadow:var(--shadow);opacity:0;transform:translateY(-8px);pointer-events:none;transition:.25s var(--ease)}
+.toast.on{opacity:1;transform:none}
+.toast svg{width:16px;height:16px;color:var(--gold);flex:none}
 
 /* ── ЭКРАНЫ ──────────────────────────────────────────────── */
 .screen{display:none;animation:rise .3s var(--ease)}
@@ -134,9 +148,14 @@ a{color:inherit}
 
 /* ── БАННЕР (dashboard → Баннеры, 3:1) ───────────────────── */
 .banner{margin:24px 0 0;border-radius:18px;padding:34px 36px;color:#fff;position:relative;overflow:hidden;background:linear-gradient(115deg,var(--brand) 0%,var(--brand-soft) 100%)}
+.banner h2,.banner p,.banner .pill{position:relative}
 .banner h2{font-size:clamp(22px,3vw,32px);max-width:18ch;line-height:1.1}
 .banner p{margin:10px 0 0;opacity:.82;font-size:15px;max-width:40ch}
 .banner .pill{display:inline-block;margin-top:20px;background:var(--gold);color:var(--ink);padding:10px 18px;border-radius:10px;font-weight:600;font-size:14px}
+.banner::before{content:"";position:absolute;inset:0;opacity:.5;
+  background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.06) 0 2px,transparent 2px 26px);
+  -webkit-mask-image:radial-gradient(120% 140% at 78% 30%,#000 0%,transparent 68%);
+          mask-image:radial-gradient(120% 140% at 78% 30%,#000 0%,transparent 68%)}
 .banner::after{content:"";position:absolute;right:-70px;top:-70px;width:300px;height:300px;border-radius:50%;border:1px solid rgba(255,255,255,.14)}
 
 /* ── ПЛИТКА КАТЕГОРИЙ (dashboard → Плитка категорий) ─────── */
@@ -299,6 +318,11 @@ a{color:inherit}
   .mode button{padding:11px 14px}
   .row-meta{display:none}
   .row-price{min-width:0}
+  /* Шапка на мобильном ниже, а имя блюда длинное — тост во всю ширину
+     под шапкой, иначе налезает на неё и обрезается */
+  .toast{top:auto;bottom:20px;left:16px;right:16px;justify-content:center}
+  .toast{transform:translateY(8px)}
+  .toast.on{transform:none}
 }
 /* Убираем движение, но не обратную связь: смена цвета и прозрачности
    остаётся, иначе нажатия перестают ощущаться нажатиями. */
@@ -306,6 +330,9 @@ a{color:inherit}
   *{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}
   *{transition-property:color,background-color,border-color,opacity,box-shadow!important;transition-duration:.12s!important}
   .story:hover,.tile:hover{transform:none}
+  button:active{transform:none;opacity:.75}
+  .fcard:active img,.tile:active img{transform:none}
+  .cart-btn.pop{animation:none;opacity:.75}
 }
 </style>
 </head>
@@ -324,10 +351,16 @@ a{color:inherit}
     </div>
     <div class="where"><b id="whereText">Жулебинский б-р, 14 · до 40 мин</b></div>
     <button class="cart-btn" data-empty="true" id="cartBtn" onclick="go('cart')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6h15l-1.5 9h-12z"/><path d="M6 6 4.5 2H2"/><circle cx="9.5" cy="20" r="1.4" fill="currentColor" stroke="none"/><circle cx="17.5" cy="20" r="1.4" fill="currentColor" stroke="none"/></svg>
       Корзина <span class="num" id="cartSum">0 ₽</span>
     </button>
   </div>
 </header>
+
+<div class="toast" id="toast" role="status">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+  <span id="toastText">Добавлено в корзину</span>
+</div>
 
 <!-- ── ГЛАВНАЯ ─────────────────────────────────────────── -->
 <main id="app">
@@ -657,7 +690,18 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSheet()});
 /* ── корзина ──────────────────────────────────────────── */
 function addToCart(){
   cart.push({title:active.title,qty,price:price(),mods:[...mods].map(i=>active.additives[i].title)});
+  showToast(`«${active.title}» — в корзине`);
   closeSheet(); paint();
+}
+let toastT=null;
+function showToast(text){
+  const t=document.getElementById("toast");
+  document.getElementById("toastText").textContent=text;
+  t.classList.add("on");
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>t.classList.remove("on"),2200);
+  const btn=document.getElementById("cartBtn");
+  btn.classList.remove("pop"); void btn.offsetWidth; btn.classList.add("pop");
 }
 function paint(){
   const total=cart.reduce((s,l)=>s+l.price*l.qty,0);
