@@ -128,8 +128,9 @@ a{color:inherit}
 .rail::-webkit-scrollbar{display:none}
 .story{flex:none;width:104px;height:140px;border-radius:var(--r);position:relative;overflow:hidden;padding:12px;display:flex;align-items:flex-end;color:#fff;transition:.22s var(--ease)}
 .story:hover{transform:translateY(-3px)}
-.story b{position:relative;font-size:13px;font-weight:500;line-height:1.25;text-shadow:0 1px 8px rgba(0,0,0,.35)}
-.story::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.45))}
+.story img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.story b{position:relative;font-size:13px;font-weight:600;line-height:1.25;text-shadow:0 1px 6px rgba(0,0,0,.9)}
+.story::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05) 25%,rgba(8,12,10,.82) 78%,rgba(8,12,10,.94))}
 
 /* ── БАННЕР (dashboard → Баннеры, 3:1) ───────────────────── */
 .banner{margin:24px 0 0;border-radius:18px;padding:34px 36px;color:#fff;position:relative;overflow:hidden;background:linear-gradient(115deg,var(--brand) 0%,var(--brand-soft) 100%)}
@@ -148,11 +149,13 @@ a{color:inherit}
 .tile:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
 .tile.w2{grid-column:span 2}
 .tile.h2{grid-row:span 2;min-height:248px}
-.tile b{position:relative;font-family:"Unbounded";font-weight:500;font-size:17px;line-height:1.15;letter-spacing:-.02em}
-.tile i{position:relative;font-style:normal;font-size:12px;opacity:.8;margin-top:4px;font-family:"JetBrains Mono";font-variant-numeric:tabular-nums}
+.tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s var(--ease)}
+.tile:hover img{transform:scale(1.05)}
+.tile b{position:relative;font-family:"Unbounded";font-weight:500;font-size:17px;line-height:1.15;letter-spacing:-.02em;text-shadow:0 1px 10px rgba(0,0,0,.75)}
+.tile i{position:relative;font-style:normal;font-size:12px;opacity:.92;text-shadow:0 1px 8px rgba(0,0,0,.8);margin-top:4px;font-family:"JetBrains Mono";font-variant-numeric:tabular-nums}
 .tile.h2 b{font-size:30px}
 .tile-from{position:relative;margin-bottom:auto;align-self:flex-start;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);padding:7px 12px;border-radius:9px;font-size:12px;font-weight:500}
-.tile::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,.4))}
+.tile::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,10,8,.1) 15%,rgba(6,10,8,.62) 52%,rgba(6,10,8,.9) 82%,rgba(6,10,8,.97) 100%)}
 
 /* ── КАТАЛОГ ─────────────────────────────────────────────── */
 .cat-layout{display:grid;grid-template-columns:212px 1fr;gap:40px;align-items:start;padding:32px 0 80px}
@@ -523,9 +526,12 @@ function setMode(b,label){
 function setType(b){b.parentNode.querySelectorAll(".type").forEach(x=>x.setAttribute("aria-pressed",x===b))}
 
 /* ── главная ──────────────────────────────────────────── */
-const STORIES=[["Как лепят",0],["Меню недели",1],["Наршараб",3],["Кто мы",2],["Банкеты",5],["Доставка",6]];
-document.getElementById("stories").innerHTML = STORIES.map(([t,g])=>
-  `<button class="story" style="background:${grad(g)}"><b>${t}</b></button>`).join("");
+/* Сторис на реальных кадрах: крупные планы вырезаны из фотографий
+   самой сети, а не сгенерированы и не взяты из стока. */
+const STORIES=[["Как лепят","myaso"],["С углей","ugli"],["Своя зелень","zelen"],
+               ["Овощи на огне","perec"],["Наши подачи","granat"],["Лаваш свой","lavash"]];
+document.getElementById("stories").innerHTML = STORIES.map(([t,f])=>
+  `<button class="story"><img src="img/art/${f}.jpg" alt="" loading="lazy"><b>${t}</b></button>`).join("");
 
 document.getElementById("tiles").innerHTML = M.catalog.slice(0,7).map((c,i)=>{
   const size = i===0 ? "w2 h2" : (i===3 ? "w2" : "");
@@ -533,8 +539,15 @@ document.getElementById("tiles").innerHTML = M.catalog.slice(0,7).map((c,i)=>{
      цена входа — главный аргумент, а не картинка блюда. */
   const from = Math.min(...c.items.filter(x=>!x.stop).map(x=>x.price));
   const lead = i===0 ? `<span class="tile-from num">от ${from} ₽ за штуку</span>` : "";
+  /* Снимок ставим только там, где он честен: у нас три настоящих фото,
+     и все три — мясо с углей. Подписать ими «Хинкали» значило бы
+     показать гостю не то блюдо. Остальные категории — цвет. */
+  const TRUE_ART={"Шашлыки и блюда на углях":"myaso","Шашлыки":"ugli",
+                  "Горячие блюда":"perec","Горячие закуски":"zelen"};
+  const ART=TRUE_ART[c.title];
+  const bg = ART ? `<img src="img/art/${ART}.jpg" alt="" loading="lazy">` : "";
   return `<button class="tile ${size}" style="background:${grad(i)}" onclick="openCat(${i})">
-    ${lead}<b>${c.title}</b><i>${c.count} позиций</i></button>`;
+    ${bg}${lead}<b>${c.title}</b><i>${c.count} позиций</i></button>`;
 }).join("");
 
 document.getElementById("venues").innerHTML = M.venues.map((v,i)=>`
